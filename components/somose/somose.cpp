@@ -67,7 +67,7 @@ void SOMOSE::set_new_i2c_address(uint8_t old_addr, uint8_t new_addr) {
 
   buf[0] = command;
   buf[1] = new_addr_byte;
-  if (this->write({&buf, 2}) != i2c::ERROR_OK) {
+  if (this->write(&buf, 2) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Failed to set new I2C address!");
     this->status_set_warning();
   }
@@ -83,7 +83,7 @@ bool SOMOSE::set_reference_dry(uint16_t new_value) {
   buf[0] = command;
   buf[1] = value_low;
   buf[2] = value_high;
-  if (this->write({&buf,3}) != i2c::ERROR_OK) {
+  if (this->write(&buf,3) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Failed to set dry reference!");
     this->status_set_warning();
     return false;
@@ -101,7 +101,7 @@ bool SOMOSE::set_reference_wet(uint16_t new_value) {
   buf[0] = command;
   buf[1] = value_low;
   buf[2] = value_high;
-  if (this->write({&buf,3}) != i2c::ERROR_OK) {
+  if (this->write(&buf,3) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Failed to set wet reference!");
     this->status_set_warning();
     return false;
