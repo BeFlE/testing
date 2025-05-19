@@ -316,7 +316,11 @@ bool SOMOSE::set_low_power_mode(bool turn_on) {
   ESP_LOGD(TAG, "Setting low power mode to: %s", turn_on ? "on" : "off");
   uint8_t command = 'L';
   uint8_t value = turn_on ? 1 : 0;
-  if (this->write({command, value}) != i2c::ERROR_OK) {
+  uint8_t buf[2];
+
+  buf[0] = command;
+  buf[1] = value;
+  if (this->write(buf,2) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Failed to set low power mode!");
     this->status_set_warning();
     return false;
@@ -328,7 +332,11 @@ bool SOMOSE::set_low_power_mode(bool turn_on) {
 bool SOMOSE::start_measurement(uint8_t repetitions) {
   ESP_LOGD(TAG, "Starting measurement with %d repetitions", repetitions);
   uint8_t command = 'M';
-  if (this->write({command, repetitions}) != i2c::ERROR_OK) {
+  uint8_t buf[2];
+
+  buf[0] = command;
+  buf[1] = repetitions;
+  if (this->write(buf,2) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Failed to start measurement!");
     this->status_set_warning();
     return false;
@@ -358,7 +366,7 @@ bool SOMOSE::is_measurement_finished_() {
 void SOMOSE::update() {
   ESP_LOGD(TAG, "SOMOSE::update");
 
-  float temperature = :get_temperature_value_signed_() * 1.0f;
+  float temperature = get_temperature_value_signed_() * 1.0f;
   float moisture = static_cast<float>(get_averaged_sensor_value_());
 
   if (this->temperature_sensor_ != nullptr) {
