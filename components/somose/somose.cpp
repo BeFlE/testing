@@ -8,180 +8,156 @@ namespace somose {
 
 static const char *const TAG = "somose";
 
-  void SOMOSE::setup() {
-    ESP_LOGCONFIG(TAG, "Setting up SOMOSE...");
-  
-    uint8_t command = 0x64;
-		uint8_t value[2];
+void SOMOSE::setup() {
+  ESP_LOGCONFIG(TAG, "Setting up SOMOSE...");
 
-		if (this->write(&command, 1) != i2c::ERROR_OK) { // command read value
-      ESP_LOGE(TAG, "Write failed!");
+  uint8_t command = 0x64;
+  uint8_t value[2];
+
+  auto read_two_bytes = [&](uint8_t cmd, uint16_t &target, const char *log_message) {
+    if (this->write(&cmd, 1) != i2c::ERROR_OK) {
+      ESP_LOGE(TAG, "Write failed for %s!", log_message);
       this->status_set_warning();
-      return;
+      return false;
     }
-
-   	delay(1);                   // maybe some delay is required
-
+    delay(1); // Maybe some delay is required
     if (this->read(value, 2) != i2c::ERROR_OK) {
-      ESP_LOGE(TAG, "Read Value failed!");
+      ESP_LOGE(TAG, "Read failed for %s!", log_message);
       this->status_set_warning();
-      return;
+      return false;
     }
+    target = value[0] * 256 + value[1];
+    ESP_LOGD(TAG, "Read %s value %d (%d, %d).", log_message, target, value[0], value[1]);
+    return true;
+  };
 
-    ESP_LOGD(TAG, "Read moisture min value %d (%d, %d).", value[0] * 256 + value[1], value[0], value[1]);
-		this->moisture_min_ = value[0] * 256 + value[1];
+  if (!read_two_bytes(0x64, this->moisture_min_, "moisture min")) {
+    return;
+  }
 
-    command = 0x75;
+  if (!read_two_bytes(0x75, this->moisture_max_, "moisture max")) {
+    return;
+  }
 
-		if (this->write(&command, 1) != i2c::ERROR_OK) { // command read value
-      ESP_LOGE(TAG, "Write failed!");
-      this->status_set_warning();
-      return;
-    }
+  // get status - commented out in original code
+  /*
+  uint8_t status = 0;
+  if (this->read(&status, 1) != i2c::ERROR_OK) {
+    ESP_LOGE(TAG, "Read status failed!");
+    this->mark_failed();
+    return;
+  }
 
-   	delay(1);                   // maybe some delay is required
-
-    if (this->read(value, 2) != i2c::ERROR_OK) {
-      ESP_LOGE(TAG, "Read Value failed!");
-      this->status_set_warning();
-      return;
-    }
-
-    ESP_LOGD(TAG, "Read moisture max value %d (%d, %d).", value[0] * 256 + value[1], value[0], value[1]);
-		this->moisture_max_ =  value[0] * 256 + value[1];
-
-    // get status
-    /* uint8_t status = 0;
-    if (this->read(&status, 1) != i2c::ERROR_OK) {
-      ESP_LOGE(TAG, "Read failed!");
+  // reset registers if required
+  if ((status & 0x18) != 0x18) {
+    ESP_LOGD(TAG, "Resetting SOMOSE registers");
+    if (!this->reset_register_(0x1B) || !this->reset_register_(0x1C) || !this->reset_register_(0x1E)) {
       this->mark_failed();
       return;
     }
-  
-    // reset registers if required, according to the datasheet
-    // this can be required after power on, although this was
-    // never required during testing
-    if ((status & 0x18) != 0x18) {
-      ESP_LOGD(TAG, "Resetting SOMOSE registers");
-      if (!this->reset_register_(0x1B)) {
-        this->mark_failed();
-        return;
-      }
-      if (!this->reset_register_(0x1C)) {
-        this->mark_failed();
-        return;
-      }
-      if (!this->reset_register_(0x1E)) {
-        this->mark_failed();
-        return;
-      }
-    }
-    */
   }
-  
- 	uint8_t SOMOSE::getSensorValue_()
-	{
-    uint8_t command = 0x76;
-		uint8_t value = 0;
-		uint8_t dump;
+  */
+}
 
-		if (this->write(&command, 1) != i2c::ERROR_OK) { // command read value
-      ESP_LOGE(TAG, "Write failed!");
-      this->status_set_warning();
-      return 0;
-    }
+uint8_t SOMOSE::getSensorValue_() {
+  uint8_t command = 0x76;
+  uint8_t value = 0;
+  uint8_t dump;
 
-   	delay(1);                   // maybe some delay is required
-
-    if (this->read(&dump, 1) != i2c::ERROR_OK) {
-      ESP_LOGE(TAG, "Read dump failed!");
-      this->status_set_warning();
-      return 0;
-    }
-
-    if (this->read(&value, 1) != i2c::ERROR_OK) {
-      ESP_LOGE(TAG, "Read moisture failed!");
-      this->status_set_warning();
-      return 0;
-    }
-	
-		return value;
-	}
-
-   	uint16_t SOMOSE::getSensorRAWValue_()
-	{
-    uint8_t command = 0x72;
-		uint8_t value[2];
-
-		if (this->write(&command, 1) != i2c::ERROR_OK) { // command read value
-      ESP_LOGE(TAG, "Write failed!");
-      this->status_set_warning();
-      return 0;
-    }
-
-   	delay(1);                   // maybe some delay is required
-
-    if (this->read(value, 2) != i2c::ERROR_OK) {
-      ESP_LOGE(TAG, "Read Value failed!");
-      this->status_set_warning();
-      return 0;
-    }
-
-     ESP_LOGD(TAG, "Read moisture raw value %d (%d, %d).", value[0] * 256 + value[1], value[0], value[1]);
-		return value[0] * 256 + value[1];
-	}
-	
-	uint8_t SOMOSE::getTemperatureValue_() 
-	{
-    uint8_t command = 0x74;
-		uint8_t value = 0;
-
-		if (this->write(&command, 1) != i2c::ERROR_OK) { // command read value
-      ESP_LOGE(TAG, "Write failed!");
-      this->status_set_warning();
-      return 0;
-    }
-
-   	delay(1);                   // maybe some delay is required
-
-    if (this->read(&value, 1) != i2c::ERROR_OK) {
-      ESP_LOGE(TAG, "Read temperature failed!");
-      this->status_set_warning();
-      return 0;
-    }
-		return value;
-	}
-
-  void SOMOSE::update() {
-    // request measurement
-
-    ESP_LOGD(TAG, "SOMOSE::update");
-
-    float temperature = getTemperatureValue_() * 1.0;
-    float moisture = getSensorRAWValue_()*100.0/8000;
-
-    if (this->temperature_sensor_ != nullptr) {
-      this->temperature_sensor_->publish_state(temperature);
-    }
-    if (this->moisture_sensor_ != nullptr) {
-      this->moisture_sensor_->publish_state(moisture);
-    }
-    
-    this->status_clear_warning();
+  if (this->write(&command, 1) != i2c::ERROR_OK) {
+    ESP_LOGE(TAG, "Write failed for sensor value!");
+    this->status_set_warning();
+    return 0;
   }
-  
-  void SOMOSE::dump_config() {
-    ESP_LOGCONFIG(TAG, "SOMOSE:");
-    LOG_I2C_DEVICE(this);
-    if (this->is_failed()) {
-      ESP_LOGE(TAG, "Communication with SOMOSE failed!");
-    }
-    LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
-    LOG_SENSOR("  ", "moisture", this->moisture_sensor_);
+
+  delay(1); // Maybe some delay is required
+
+  if (this->read(&dump, 1) != i2c::ERROR_OK) {
+    ESP_LOGE(TAG, "Read dump failed for sensor value!");
+    this->status_set_warning();
+    return 0;
   }
-  
-  float SOMOSE::get_setup_priority() const { return setup_priority::DATA; }
 
+  if (this->read(&value, 1) != i2c::ERROR_OK) {
+    ESP_LOGE(TAG, "Read moisture failed!");
+    this->status_set_warning();
+    return 0;
+  }
 
-}  // namespace somose
-}  // namespace esphome
+  return value;
+}
+
+uint16_t SOMOSE::getSensorRAWValue_() {
+  uint8_t command = 0x72;
+  uint8_t value[2];
+
+  if (this->write(&command, 1) != i2c::ERROR_OK) {
+    ESP_LOGE(TAG, "Write failed for raw sensor value!");
+    this->status_set_warning();
+    return 0;
+  }
+
+  delay(1); // Maybe some delay is required
+
+  if (this->read(value, 2) != i2c::ERROR_OK) {
+    ESP_LOGE(TAG, "Read raw value failed!");
+    this->status_set_warning();
+    return 0;
+  }
+
+  ESP_LOGD(TAG, "Read moisture raw value %d (%d, %d).", value[0] * 256 + value[1], value[0], value[1]);
+  return value[0] * 256 + value[1];
+}
+
+uint8_t SOMOSE::getTemperatureValue_() {
+  uint8_t command = 0x74;
+  uint8_t value = 0;
+
+  if (this->write(&command, 1) != i2c::ERROR_OK) {
+    ESP_LOGE(TAG, "Write failed for temperature!");
+    this->status_set_warning();
+    return 0;
+  }
+
+  delay(1); // Maybe some delay is required
+
+  if (this->read(&value, 1) != i2c::ERROR_OK) {
+    ESP_LOGE(TAG, "Read temperature failed!");
+    this->status_set_warning();
+    return 0;
+  }
+  return value;
+}
+
+void SOMOSE::update() {
+  ESP_LOGD(TAG, "SOMOSE::update");
+
+  float temperature = getTemperatureValue_() * 1.0f;
+  float moisture = static_cast<float>(getSensorRAWValue_()) * 100.0f / 8000.0f;
+
+  if (this->temperature_sensor_ != nullptr) {
+    this->temperature_sensor_->publish_state(temperature);
+  }
+  if (this->moisture_sensor_ != nullptr) {
+    this->moisture_sensor_->publish_state(moisture);
+  }
+
+  this->status_clear_warning();
+}
+
+void SOMOSE::dump_config() {
+  ESP_LOGCONFIG(TAG, "SOMOSE:");
+  LOG_I2C_DEVICE(this);
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Communication with SOMOSE failed!");
+  }
+  LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
+  LOG_SENSOR("  ", "Moisture", this->moisture_sensor_);
+}
+
+float SOMOSE::get_setup_priority() const {
+  return setup_priority::DATA;
+}
+
+} // namespace somose
+} // namespace esphome
