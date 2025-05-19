@@ -121,13 +121,13 @@ uint8_t SOMOSE::get_averaged_sensor_value_() {
     return 0;
   }
   delay(1);
-  if (this->read(&buf, 2) != i2c::ERROR_OK) {
+  if (this->read(buf, 2) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Read failed for averaged sensor value!");
     this->status_set_warning();
     return 0;
   }
   dump = buf[0];
-  value = Buf[1];
+  value = buf[1];
   ESP_LOGD(TAG, "Read averaged sensor value (dump: %d, value: %d)", dump, value);
   return value;
 }
@@ -156,6 +156,7 @@ uint8_t SOMOSE::get_sensor_value() {
   uint8_t command = 0x76;
   uint8_t value = 0;
   uint8_t dump;
+  uint8 buf[2];
 
   if (this->write(&command, 1) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Write failed for aliased sensor value!");
@@ -163,12 +164,14 @@ uint8_t SOMOSE::get_sensor_value() {
     return 0;
   }
   delay(1);
-  if (this->read({&dump, &value}, 2) != i2c::ERROR_OK) {
+  if (this->read(buf, 2) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Read failed for aliased sensor value!");
     this->status_set_warning();
     return 0;
   }
-  ESP_LOGD(TAG, "Read aliased sensor value (dump: %d, value: %d)", dump, value);
+  value = buf[0];
+  dump = buf[1];
+  ESP_LOGD(TAG, "Read sensor value (dump: %d, value: %d)", dump, value);
   return value;
 }
 
