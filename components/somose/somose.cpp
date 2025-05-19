@@ -63,7 +63,11 @@ void SOMOSE::set_new_i2c_address(uint8_t old_addr, uint8_t new_addr) {
   ESP_LOGD(TAG, "Setting new I2C address from 0x%02X to 0x%02X", old_addr, new_addr);
   uint8_t command = 0x41;
   uint8_t new_addr_byte = (new_addr << 1) & 0xFE;
-  if (this->write({command, new_addr_byte}) != i2c::ERROR_OK) {
+  uint8_t* buf[2];
+
+  buf[0] = command;
+  buf[1] = new_addr_byte;
+  if (this->write({&buf, 2}) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Failed to set new I2C address!");
     this->status_set_warning();
   }
