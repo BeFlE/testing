@@ -63,7 +63,7 @@ void SOMOSE::set_new_i2c_address(uint8_t old_addr, uint8_t new_addr) {
   ESP_LOGD(TAG, "Setting new I2C address from 0x%02X to 0x%02X", old_addr, new_addr);
   uint8_t command = 0x41;
   uint8_t new_addr_byte = (new_addr << 1) & 0xFE;
-  uint8_t* buf[2];
+  uint8_t buf[2];
 
   buf[0] = command;
   buf[1] = new_addr_byte;
@@ -78,7 +78,12 @@ bool SOMOSE::set_reference_dry(uint16_t new_value) {
   uint8_t command = 0x44;
   uint8_t value_low = new_value & 0xFF;
   uint8_t value_high = (new_value >> 8) & 0xFF;
-  if (this->write({command, value_low, value_high}) != i2c::ERROR_OK) {
+  uint8_t buf[3];
+
+  buf[0] = command;
+  buf[1] = value_low;
+  buf[2] = value_high;
+  if (this->write({&buf,3}) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Failed to set dry reference!");
     this->status_set_warning();
     return false;
@@ -91,7 +96,12 @@ bool SOMOSE::set_reference_wet(uint16_t new_value) {
   uint8_t command = 0x55;
   uint8_t value_low = new_value & 0xFF;
   uint8_t value_high = (new_value >> 8) & 0xFF;
-  if (this->write({command, value_low, value_high}) != i2c::ERROR_OK) {
+  uint8_t buf[3];
+  
+  buf[0] = command;
+  buf[1] = value_low;
+  buf[2] = value_high;
+  if (this->write({&buf,3}) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Failed to set wet reference!");
     this->status_set_warning();
     return false;
@@ -103,6 +113,7 @@ uint8_t SOMOSE::get_averaged_sensor_value_() {
   uint8_t command = 0x76;
   uint8_t value = 0;
   uint8_t dump;
+  uint8_t buf[2];
 
   if (this->write(&command, 1) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Write failed for averaged sensor value!");
@@ -110,11 +121,13 @@ uint8_t SOMOSE::get_averaged_sensor_value_() {
     return 0;
   }
   delay(1);
-  if (this->read({&dump, &value}, 2) != i2c::ERROR_OK) {
+  if (this->read(&buf, 2) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Read failed for averaged sensor value!");
     this->status_set_warning();
     return 0;
   }
+  dump = buf[0];
+  value = Buf[1];
   ESP_LOGD(TAG, "Read averaged sensor value (dump: %d, value: %d)", dump, value);
   return value;
 }
@@ -129,7 +142,7 @@ uint16_t SOMOSE::get_raw_sensor_value() {
     return 0;
   }
   delay(1);
-  if (this->read(value, 2) != i2c::ERROR_OK) {
+  if (this->read(&value, 2) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Read failed for raw sensor value (Arduino-like)!");
     this->status_set_warning();
     return 0;
