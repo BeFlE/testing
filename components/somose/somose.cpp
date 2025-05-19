@@ -156,7 +156,7 @@ uint8_t SOMOSE::get_sensor_value() {
   uint8_t command = 0x76;
   uint8_t value = 0;
   uint8_t dump;
-  uint8 buf[2];
+  uint8_t buf[2];
 
   if (this->write(&command, 1) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Write failed for aliased sensor value!");
