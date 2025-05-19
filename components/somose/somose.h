@@ -21,8 +21,8 @@ class SOMOSE : public PollingComponent, public i2c::I2CDevice {
   bool set_reference_dry(uint16_t new_value);
   bool set_reference_wet(uint16_t new_value);
   uint8_t get_averaged_sensor_value_();
-  uint16_t get_raw_sensor_value_arduino_like();
-  uint8_t get_sensor_value_aliased_();
+  uint16_t get_raw_sensor_value();
+  uint8_t get_sensor_value();
   int8_t get_temperature_value_signed_();
   uint16_t get_reference_dry_value_();
   uint16_t get_reference_wet_value_();

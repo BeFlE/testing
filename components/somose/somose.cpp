@@ -115,7 +115,7 @@ uint8_t SOMOSE::get_averaged_sensor_value_() {
   return value;
 }
 
-uint16_t SOMOSE::get_raw_sensor_value_arduino_like() {
+uint16_t SOMOSE::get_raw_sensor_value() {
   uint8_t command = 'r';
   uint8_t value[2];
 
@@ -135,7 +135,7 @@ uint16_t SOMOSE::get_raw_sensor_value_arduino_like() {
   return raw_value;
 }
 
-uint8_t SOMOSE::get_sensor_value_aliased_() {
+uint8_t SOMOSE::get_sensor_value() {
   uint8_t command = 0x76;
   uint8_t value = 0;
   uint8_t dump;
@@ -338,8 +338,8 @@ bool SOMOSE::is_measurement_finished_() {
 void SOMOSE::update() {
   ESP_LOGD(TAG, "SOMOSE::update");
 
-  float temperature = getTemperatureValue_() * 1.0f;
-  float moisture = static_cast<float>(getSensorRAWValue_()) * 100.0f / 8000.0f;
+  float temperature = :get_temperature_value_signed_() * 1.0f;
+  float moisture = static_cast<float>(get_averaged_sensor_value_());
 
   if (this->temperature_sensor_ != nullptr) {
     this->temperature_sensor_->publish_state(temperature);
