@@ -371,6 +371,7 @@ bool SOMOSE::is_measurement_finished_() {
     ESP_LOGE(TAG, "Failed to read measurement finished status!");
     return false;
   }
+  ESP_LOGD(TAG, "Status: %u", status);
   bool finished = 0;
   if(status & 0x01)
     finished = 0;
