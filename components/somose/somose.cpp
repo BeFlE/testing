@@ -28,14 +28,14 @@ void SOMOSE::update() {
   if(this->EnergyMode_ == energy_saving)
   {
     uint8_t cntr = 0;
-    start_measurement(10);
+    start_measurement(100);
     delay(250);
-    while (is_measurement_finished_() != 1)
-    {
-      delay(10);
-      if(cntr++ >= 10)
-        break;
-    }
+    // while (is_measurement_finished_() != 1)
+    // {
+    //   delay(10);
+    //   if(cntr++ >= 10)
+    //     break;
+    // }
   }
 
   if(this->Moisture_Data_ == average)
