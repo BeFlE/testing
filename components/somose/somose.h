@@ -12,6 +12,12 @@ enum EnergyMode_t {
   energy_saving
 };
 
+enum Moisture_Data_t{
+  last,
+  average,
+  raw    
+};
+
 class SOMOSE : public PollingComponent, public i2c::I2CDevice {
  public:
   void dump_config() override;
@@ -47,6 +53,7 @@ class SOMOSE : public PollingComponent, public i2c::I2CDevice {
   uint16_t moisture_min_{0};
   uint16_t moisture_max_{0};
   EnergyMode_t EnergyMode_;
+  Moisture_Data_t Moisture_Data_;
 };
 
 } // namespace somose

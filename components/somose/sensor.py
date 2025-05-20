@@ -18,13 +18,21 @@ DEPENDENCIES = ["i2c"]
 somose_ns = cg.esphome_ns.namespace("somose")
 SOMOSE = somose_ns.class_("SOMOSE", cg.PollingComponent, i2c.I2CDevice)
 EnergyMode = somose_ns.enum("EnergyMode_t")
+MoistureData = somose_ns.enum("Moisture_Data_t")
 
 ENERGY_MODEs = {
   "CONTINOUS": EnergyMode.continous,
   "ENERGY_SAVING": EnergyMode.energy_saving,
 }
 
+MOISTURE_DATAs = {
+    "LAST": MoistureData.last,
+    "AVERAGE": MoistureData.average,
+    "RAW": MoistureData.raw,
+}
+
 CONF_ENERGY_MODE = "energy_mode"
+CONF_MOISTURE_DATA = "moisture_data"
 
 CONFIG_SCHEMA = (
     cv.Schema(
@@ -45,6 +53,9 @@ CONFIG_SCHEMA = (
             ),
             cv.Optional(CONF_ENERGY_MODE, default="continous"): cv.enum(
             ENERGY_MODEs, upper=True, space="_"
+            ),
+            cv.Optional(CONF_MOISTURE_DATA, default="average"): cv.enum(
+            MOISTURE_DATAs, upper=True, space="_"
             ),
         }
     )
@@ -67,3 +78,5 @@ async def to_code(config):
         cg.add(var.set_moisture_sensor(sens))
 
     cg.add(var.set_Energy_Mode(config[CONF_ENERGY_MODE]))
+
+    cg.add(var.set_Moisture_Data(config[CONF_MOISTURE_DATA]))

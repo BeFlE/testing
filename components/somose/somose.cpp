@@ -8,9 +8,7 @@ namespace somose {
 
 static const char *const TAG = "somose";
 
-void SOMOSE::set_Energy_Mode(EnergyMode_t EnergyMode) {
-  this->EnergyMode_ = EnergyMode;
-}
+
 
 void SOMOSE::setup() {
   ESP_LOGCONFIG(TAG, "Setting up SOMOSE...");
@@ -396,5 +394,12 @@ bool SOMOSE::is_measurement_finished_() {
   return finished;
 }
 
+void SOMOSE::set_Energy_Mode(EnergyMode_t EnergyMode) {
+  this->EnergyMode_ = EnergyMode;
+}
+
+void SOMOSE::set_Moisture_Data(Moisture_Data_t Moisture_Data) {
+  this->Moisture_Data_ = Moisture_Data;
+}
 } // namespace somose
 } // namespace esphome
