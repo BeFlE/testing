@@ -13,7 +13,9 @@ static const char *const TAG = "somose";
 void SOMOSE::setup() {
   ESP_LOGCONFIG(TAG, "Setting up SOMOSE...");
   if(this->EnergyMode_ != (EnergyMode_t)get_low_power_mode_())
-    set_low_power_mode((bool)this->EnergyMode_);
+    ESP_LOGD(TAG, "wrong powerMode");
+    // set_low_power_mode((bool)this->EnergyMode_);
+  ESP_LOGD(TAG, "setup end");
 }
 
 void SOMOSE::update() {
