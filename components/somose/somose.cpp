@@ -59,6 +59,36 @@ void SOMOSE::setup() {
   */
 }
 
+void SOMOSE::update() {
+  ESP_LOGD(TAG, "SOMOSE::update");
+
+  float temperature = get_temperature_value_signed_() * 1.0f;
+  float moisture = static_cast<float>(get_averaged_sensor_value_());
+
+  if (this->temperature_sensor_ != nullptr) {
+    this->temperature_sensor_->publish_state(temperature);
+  }
+  if (this->moisture_sensor_ != nullptr) {
+    this->moisture_sensor_->publish_state(moisture);
+  }
+
+  this->status_clear_warning();
+}
+
+void SOMOSE::dump_config() {
+  ESP_LOGCONFIG(TAG, "SOMOSE:");
+  LOG_I2C_DEVICE(this);
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Communication with SOMOSE failed!");
+  }
+  LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
+  LOG_SENSOR("  ", "Moisture", this->moisture_sensor_);
+}
+
+float SOMOSE::get_setup_priority() const {
+  return setup_priority::DATA;
+}
+
 void SOMOSE::set_new_i2c_address(uint8_t old_addr, uint8_t new_addr) {
   ESP_LOGD(TAG, "Setting new I2C address from 0x%02X to 0x%02X", old_addr, new_addr);
   uint8_t command = 0x41;
@@ -360,37 +390,6 @@ bool SOMOSE::is_measurement_finished_() {
   bool finished = !(status & 0x01);
   ESP_LOGD(TAG, "Measurement finished: %s", finished ? "yes" : "no");
   return finished;
-}
-
-
-void SOMOSE::update() {
-  ESP_LOGD(TAG, "SOMOSE::update");
-
-  float temperature = get_temperature_value_signed_() * 1.0f;
-  float moisture = static_cast<float>(get_averaged_sensor_value_());
-
-  if (this->temperature_sensor_ != nullptr) {
-    this->temperature_sensor_->publish_state(temperature);
-  }
-  if (this->moisture_sensor_ != nullptr) {
-    this->moisture_sensor_->publish_state(moisture);
-  }
-
-  this->status_clear_warning();
-}
-
-void SOMOSE::dump_config() {
-  ESP_LOGCONFIG(TAG, "SOMOSE:");
-  LOG_I2C_DEVICE(this);
-  if (this->is_failed()) {
-    ESP_LOGE(TAG, "Communication with SOMOSE failed!");
-  }
-  LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
-  LOG_SENSOR("  ", "Moisture", this->moisture_sensor_);
-}
-
-float SOMOSE::get_setup_priority() const {
-  return setup_priority::DATA;
 }
 
 } // namespace somose

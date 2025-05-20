@@ -17,6 +17,12 @@ DEPENDENCIES = ["i2c"]
 
 somose_ns = cg.esphome_ns.namespace("somose")
 SOMOSE = somose_ns.class_("SOMOSE", cg.PollingComponent, i2c.I2CDevice)
+EnergyMode = somose_ns.enum("EnergyMode_t")
+
+ENERGY_MODEs = {
+  "CONTINOUS": EnergyMode_t.continous,
+  "ENERGY_SAVING": EnergyMode_t.energy_saving,
+}
 
 CONFIG_SCHEMA = (
     cv.Schema(
@@ -24,16 +30,19 @@ CONFIG_SCHEMA = (
             cv.GenerateID(): cv.declare_id(SOMOSE),
             cv.Optional(CONF_TEMPERATURE): sensor.sensor_schema(
                 unit_of_measurement=UNIT_CELSIUS,
-                accuracy_decimals=1,
+                accuracy_decimals=0,
                 device_class=DEVICE_CLASS_TEMPERATURE,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
             cv.Optional(CONF_MOISTURE): sensor.sensor_schema(
                 unit_of_measurement=UNIT_PERCENT,
-                accuracy_decimals=1,
+                accuracy_decimals=0,
                 icon=ICON_WATER_PERCENT,
                 device_class=DEVICE_CLASS_MOISTURE,
                 state_class=STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(ENERGYMODE, default="continous"): cv.enum(
+            ENERGY_MODEs, upper=True, space="_"
             ),
         }
     )
@@ -54,3 +63,5 @@ async def to_code(config):
     if moisture_config := config.get(CONF_MOISTURE):
         sens = await sensor.new_sensor(moisture_config)
         cg.add(var.set_moisture_sensor(sens))
+
+    cg.add(var.set_Energy_Mode(config[ENERGYMODE]))
