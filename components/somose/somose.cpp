@@ -8,6 +8,10 @@ namespace somose {
 
 static const char *const TAG = "somose";
 
+void SOMOSE::set_Energy_Mode(EnergyMode_t EnergyMode) {
+  this->EnergyMode_ = EnergyMode;
+}
+
 void SOMOSE::setup() {
   ESP_LOGCONFIG(TAG, "Setting up SOMOSE...");
 
