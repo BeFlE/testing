@@ -305,7 +305,7 @@ float SOMOSE::get_fw_version_() {
 }
 
 bool SOMOSE::get_low_power_mode_() {
-  uint8_t command = 'o';
+  uint8_t command = 0x6F;
   uint8_t status = 0;
 
   if (this->write(&command, 1) != i2c::ERROR_OK) {
@@ -359,7 +359,7 @@ bool SOMOSE::start_measurement(uint8_t repetitions) {
 }
 
 bool SOMOSE::is_measurement_finished_() {
-  uint8_t command = 'o';
+  uint8_t command = 0x6F;
   uint8_t status = 0;
 
   if (this->write(&command, 1) != i2c::ERROR_OK) {
