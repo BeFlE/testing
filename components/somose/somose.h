@@ -7,7 +7,7 @@
 namespace esphome {
 namespace somose {
 
-enum class EnergyMode_t {
+enum EnergyMode_t {
   continous,
   energy_saving
 };
