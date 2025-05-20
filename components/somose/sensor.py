@@ -20,8 +20,8 @@ SOMOSE = somose_ns.class_("SOMOSE", cg.PollingComponent, i2c.I2CDevice)
 EnergyMode = somose_ns.enum("EnergyMode_t")
 
 ENERGY_MODEs = {
-  "CONTINOUS": EnergyMode_t.continous,
-  "ENERGY_SAVING": EnergyMode_t.energy_saving,
+  "CONTINOUS": EnergyMode.continous,
+  "ENERGY_SAVING": EnergyMode.energy_saving,
 }
 
 CONFIG_SCHEMA = (
