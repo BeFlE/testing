@@ -4,6 +4,7 @@ import esphome.config_validation as cv
 from esphome.const import (
     CONF_MOISTURE,
     CONF_ID,
+    CONF_ENERGYMODE,
     CONF_TEMPERATURE,
     DEVICE_CLASS_MOISTURE,
     DEVICE_CLASS_TEMPERATURE,
@@ -41,7 +42,7 @@ CONFIG_SCHEMA = (
                 device_class=DEVICE_CLASS_MOISTURE,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
-            cv.Optional(ENERGYMODE, default="continous"): cv.enum(
+            cv.Optional(CONF_ENERGYMODE, default="continous"): cv.enum(
             ENERGY_MODEs, upper=True, space="_"
             ),
         }
@@ -64,4 +65,4 @@ async def to_code(config):
         sens = await sensor.new_sensor(moisture_config)
         cg.add(var.set_moisture_sensor(sens))
 
-    cg.add(var.set_Energy_Mode(config[ENERGYMODE]))
+    cg.add(var.set_Energy_Mode(config[CONF_ENERGYMODE]))
