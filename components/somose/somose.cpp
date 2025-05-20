@@ -25,15 +25,15 @@ void SOMOSE::update() {
   float moisture;
   float temperature = get_temperature_value_signed_() * 1.0f;
 
-  // if(this->EnergyMode_ == energy_saving)
-  // {
-  //   start_measurement();
-  //   delay(250);
-  //   while (is_measurement_finished_() != 1)
-  //   {
-  //     delay(100);
-  //   }
-  // }
+  if(this->EnergyMode_ == energy_saving)
+  {
+    start_measurement();
+    delay(250);
+    while (is_measurement_finished_() != 1)
+    {
+      delay(100);
+    }
+  }
 
   if(this->Moisture_Data_ == average)
     moisture = static_cast<float>(get_averaged_sensor_value_());
