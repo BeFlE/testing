@@ -12,8 +12,8 @@ static const char *const TAG = "somose";
 
 void SOMOSE::setup() {
   ESP_LOGCONFIG(TAG, "Setting up SOMOSE...");
-  if(this->EnergyMode_ != get_low_power_mode_())
-    set_low_power_mode((bool)this->EnergyMode_);
+  // if(this->EnergyMode_ != (EnergyMode_t)get_low_power_mode_())
+  //   set_low_power_mode((bool)this->EnergyMode_);
 }
 
 void SOMOSE::update() {
@@ -21,15 +21,15 @@ void SOMOSE::update() {
   float moisture;
   float temperature = get_temperature_value_signed_() * 1.0f;
 
-  if(this->EnergyMode_ == energy_saving)
-  {
-    start_measurement();
-    delay(250);
-    while (is_measurement_finished_() != 1)
-    {
-      delay(10);
-    }
-  }
+  // if(this->EnergyMode_ == energy_saving)
+  // {
+  //   start_measurement();
+  //   delay(250);
+  //   while (is_measurement_finished_() != 1)
+  //   {
+  //     delay(100);
+  //   }
+  // }
 
   if(this->Moisture_Data_ == average)
     moisture = static_cast<float>(get_averaged_sensor_value_());
