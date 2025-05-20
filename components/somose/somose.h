@@ -18,7 +18,7 @@ class SOMOSE : public PollingComponent, public i2c::I2CDevice {
   void update() override;
   void setup() override;
   float get_setup_priority() const override;
-
+  EnergyMode_t EnergyMode_;
   void set_temperature_sensor(sensor::Sensor *temperature_sensor) { this->temperature_sensor_ = temperature_sensor; }
   void set_moisture_sensor(sensor::Sensor *moisture_sensor) { this->moisture_sensor_ = moisture_sensor; }
 
@@ -46,7 +46,7 @@ class SOMOSE : public PollingComponent, public i2c::I2CDevice {
   sensor::Sensor *moisture_sensor_{nullptr};
   uint16_t moisture_min_{0};
   uint16_t moisture_max_{0};
-  EnergyMode_t EnergyMode_;
+  
 };
 
 } // namespace somose
