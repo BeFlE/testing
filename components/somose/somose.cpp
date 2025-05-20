@@ -28,8 +28,8 @@ void SOMOSE::update() {
   if(this->EnergyMode_ == energy_saving)
   {
     uint8_t cntr = 0;
-    start_measurement(10);
-    delay(25);
+    start_measurement(100);
+    delay(250);
     // while (is_measurement_finished_() != 1)
     // {
     //   delay(10);
@@ -331,7 +331,7 @@ bool SOMOSE::set_low_power_mode(bool turn_on) {
   uint8_t command = 'L';
   uint8_t value = turn_on ? 1 : 0;
   uint8_t buf[2];
-
+  ESP_LOGD(TAG, "Setting low power mode to: %u", value);
   buf[0] = command;
   buf[1] = value;
   if (this->write(buf,2) != i2c::ERROR_OK) {
