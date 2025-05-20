@@ -12,59 +12,25 @@ static const char *const TAG = "somose";
 
 void SOMOSE::setup() {
   ESP_LOGCONFIG(TAG, "Setting up SOMOSE...");
-
-  uint8_t command = 0x64;
-  uint8_t value[2];
-
-  auto read_two_bytes = [&](uint8_t cmd, uint16_t &target, const char *log_message) {
-    if (this->write(&cmd, 1) != i2c::ERROR_OK) {
-      ESP_LOGE(TAG, "Write failed for %s!", log_message);
-      this->status_set_warning();
-      return false;
-    }
-    delay(1); // Maybe some delay is required
-    if (this->read(value, 2) != i2c::ERROR_OK) {
-      ESP_LOGE(TAG, "Read failed for %s!", log_message);
-      this->status_set_warning();
-      return false;
-    }
-    target = value[0] * 256 + value[1];
-    ESP_LOGD(TAG, "Read %s value %d (%d, %d).", log_message, target, value[0], value[1]);
-    return true;
-  };
-
-  if (!read_two_bytes(0x64, this->moisture_min_, "moisture min")) {
-    return;
-  }
-
-  if (!read_two_bytes(0x75, this->moisture_max_, "moisture max")) {
-    return;
-  }
-
-  // get status - commented out in original code
-  /*
-  uint8_t status = 0;
-  if (this->read(&status, 1) != i2c::ERROR_OK) {
-    ESP_LOGE(TAG, "Read status failed!");
-    this->mark_failed();
-    return;
-  }
-
-  // reset registers if required
-  if ((status & 0x18) != 0x18) {
-    ESP_LOGD(TAG, "Resetting SOMOSE registers");
-    if (!this->reset_register_(0x1B) || !this->reset_register_(0x1C) || !this->reset_register_(0x1E)) {
-      this->mark_failed();
-      return;
-    }
-  }
-  */
+  if(this->EnergyMode_ != get_low_power_mode_())
+    set_low_power_mode((bool)this->EnergyMode_);
 }
 
 void SOMOSE::update() {
   ESP_LOGD(TAG, "SOMOSE::update");
   float moisture;
   float temperature = get_temperature_value_signed_() * 1.0f;
+
+  if(this->EnergyMode_ == energy_saving)
+  {
+    start_measurement();
+    delay(250);
+    while (is_measurement_finished_() != 1)
+    {
+      delay(10);
+    }
+  }
+
   if(this->Moisture_Data_ == average)
     moisture = static_cast<float>(get_averaged_sensor_value_());
   else if(this->Moisture_Data_ == last)
@@ -174,18 +140,18 @@ uint16_t SOMOSE::get_raw_sensor_value() {
   uint8_t value[2];
 
   if (this->write(&command, 1) != i2c::ERROR_OK) {
-    ESP_LOGE(TAG, "Write failed for raw sensor value (Arduino-like)!");
+    ESP_LOGE(TAG, "Write failed for raw sensor value!");
     this->status_set_warning();
     return 0;
   }
   delay(1);
   if (this->read(value, 2) != i2c::ERROR_OK) {
-    ESP_LOGE(TAG, "Read failed for raw sensor value (Arduino-like)!");
+    ESP_LOGE(TAG, "Read failed for raw sensor value!");
     this->status_set_warning();
     return 0;
   }
   uint16_t raw_value = (static_cast<uint16_t>(value[0]) << 8) | value[1];
-  ESP_LOGD(TAG, "Read raw sensor value (Arduino-like): %d (%d, %d)", raw_value, value[0], value[1]);
+  ESP_LOGD(TAG, "Read raw sensor value: %d (%d, %d)", raw_value, value[0], value[1]);
   return raw_value;
 }
 
@@ -196,13 +162,13 @@ uint8_t SOMOSE::get_sensor_value() {
   uint8_t buf[2];
 
   if (this->write(&command, 1) != i2c::ERROR_OK) {
-    ESP_LOGE(TAG, "Write failed for aliased sensor value!");
+    ESP_LOGE(TAG, "Write failed for sensor value!");
     this->status_set_warning();
     return 0;
   }
   delay(1);
   if (this->read(buf, 2) != i2c::ERROR_OK) {
-    ESP_LOGE(TAG, "Read failed for aliased sensor value!");
+    ESP_LOGE(TAG, "Read failed for sensor value!");
     this->status_set_warning();
     return 0;
   }
@@ -346,7 +312,7 @@ bool SOMOSE::get_low_power_mode_() {
   }
   bool low_power = (status & 0x02) != 0;
   ESP_LOGD(TAG, "Low power mode is: %s", low_power ? "on" : "off");
-  return low_power;
+  return 1;
 }
 
 bool SOMOSE::set_low_power_mode(bool turn_on) {
