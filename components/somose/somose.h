@@ -46,7 +46,7 @@ class SOMOSE : public PollingComponent, public i2c::I2CDevice {
   sensor::Sensor *moisture_sensor_{nullptr};
   uint16_t moisture_min_{0};
   uint16_t moisture_max_{0};
-  EnergyMode_t EnergyMode;
+  EnergyMode_t EnergyMode_;
 };
 
 } // namespace somose
