@@ -30,12 +30,12 @@ void SOMOSE::update() {
     uint8_t cntr = 0;
     start_measurement(100);
     delay(250);
-    // while (is_measurement_finished_() != 1)
-    // {
-    //   delay(10);
-    //   if(cntr++ >= 10)
-    //     break;
-    // }
+    while (is_measurement_finished_() != 1)
+    {
+      delay(10);
+      if(cntr++ >= 10)
+        break;
+    }
   }
 
   if(this->Moisture_Data_ == average)
@@ -319,10 +319,10 @@ bool SOMOSE::get_low_power_mode_() {
   }
   ESP_LOGD(TAG, "Status: %u", status);
   bool low_power = 0;
-  if ((status & 0x02) != 0)
-    low_power = 0;
-  else
+  if (status & 0x02)
     low_power = 1;
+  else
+    low_power = 0;
   ESP_LOGD(TAG, "Low power mode is: %s", low_power ? "on" : "off");
   return low_power;
 }
