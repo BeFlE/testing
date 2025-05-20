@@ -28,8 +28,8 @@ void SOMOSE::update() {
   if(this->EnergyMode_ == energy_saving)
   {
     uint8_t cntr = 0;
-    start_measurement(100);
-    delay(250);
+    start_measurement(10);
+    delay(25);
     // while (is_measurement_finished_() != 1)
     // {
     //   delay(10);
