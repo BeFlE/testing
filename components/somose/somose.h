@@ -23,7 +23,7 @@ class SOMOSE : public PollingComponent, public i2c::I2CDevice {
   void set_moisture_sensor(sensor::Sensor *moisture_sensor) { this->moisture_sensor_ = moisture_sensor; }
 
  protected:
-  void SOMOSE::set_Energy_Mode(EnergyMode_t EnergyMode);
+  void set_Energy_Mode(EnergyMode_t EnergyMode);
   void set_new_i2c_address(uint8_t old_addr, uint8_t new_addr);
   bool set_reference_dry(uint16_t new_value);
   bool set_reference_wet(uint16_t new_value);
