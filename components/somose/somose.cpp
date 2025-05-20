@@ -312,7 +312,7 @@ bool SOMOSE::get_low_power_mode_() {
     ESP_LOGE(TAG, "Failed to write command for low power mode status!");
     return false;
   }
-  delay(1);
+  delay(5);
   if (this->read(&status, 1) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Failed to read low power mode status!");
     return false;
@@ -366,7 +366,7 @@ bool SOMOSE::is_measurement_finished_() {
     ESP_LOGE(TAG, "Failed to write command for measurement finished status!");
     return false;
   }
-  delay(1);
+  delay(5);
   if (this->read(&status, 1) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Failed to read measurement finished status!");
     return false;
