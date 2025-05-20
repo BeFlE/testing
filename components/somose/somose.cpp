@@ -13,8 +13,10 @@ static const char *const TAG = "somose";
 void SOMOSE::setup() {
   ESP_LOGCONFIG(TAG, "Setting up SOMOSE...");
   if(this->EnergyMode_ != (EnergyMode_t)get_low_power_mode_())
+  {
     ESP_LOGD(TAG, "wrong powerMode");
-    // set_low_power_mode((bool)this->EnergyMode_);
+    set_low_power_mode((bool)this->EnergyMode_);
+  }
   ESP_LOGD(TAG, "setup end");
 }
 
@@ -334,7 +336,7 @@ bool SOMOSE::set_low_power_mode(bool turn_on) {
     this->status_set_warning();
     return false;
   }
-  delay(25);
+  delay(100);
   return true;
 }
 

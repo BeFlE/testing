@@ -8,8 +8,8 @@ namespace esphome {
 namespace somose {
 
 enum EnergyMode_t {
-  continous,
-  energy_saving
+  continous = 0,
+  energy_saving = 1
 };
 
 enum Moisture_Data_t{
