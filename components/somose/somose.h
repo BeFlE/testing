@@ -44,15 +44,13 @@ class SOMOSE : public PollingComponent, public i2c::I2CDevice {
   float get_fw_version_();
   bool get_low_power_mode_();
   bool set_low_power_mode(bool turn_on);
-  bool start_measurement(uint8_t repetitions);
+  bool start_measurement(uint8_t repetitions = 100);
   bool is_measurement_finished_();
   uint8_t get_sensor_value_();
   uint16_t get_sensor_raw_value_();
   uint8_t get_temperature_value_();
   sensor::Sensor *temperature_sensor_{nullptr};
   sensor::Sensor *moisture_sensor_{nullptr};
-  uint16_t moisture_min_{0};
-  uint16_t moisture_max_{0};
   EnergyMode_t EnergyMode_;
   Moisture_Data_t Moisture_Data_;
 };
