@@ -155,6 +155,7 @@ bool SOMOSE::set_reference_dry(uint16_t new_value) {
     this->status_set_warning();
     return false;
   }
+  delay(25);
   return true;
 }
 
@@ -173,6 +174,7 @@ bool SOMOSE::set_reference_wet(uint16_t new_value) {
     this->status_set_warning();
     return false;
   }
+  delay(25);
   return true;
 }
 
