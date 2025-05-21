@@ -15,7 +15,7 @@ static const char *const TAG = "somose";
 void SOMOSE::setup() {
   ESP_LOGCONFIG(TAG, "Setting up SOMOSE...");
 
-  uint8_t addBuff = this->get_i2c_address();
+  uint8_t addBuff = get_i2c_address();
   ESP_LOGD(TAG, "SoMoSe - Addr = 0x%02X", addBuff);
   if(addBuff != 0x55){
     if(get_hw_version_() == 0.0f){
