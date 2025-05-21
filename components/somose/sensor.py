@@ -33,6 +33,9 @@ MOISTURE_DATAs = {
 
 CONF_ENERGY_MODE = "energy_mode"
 CONF_MOISTURE_DATA = "moisture_data"
+CONF_REF_DRY = "ref_dry" 
+CONF_REF_WET = "ref_wet"
+CONF_FACTORY_RESET = "factory_reset"
 
 CONFIG_SCHEMA = (
     cv.Schema(
@@ -57,6 +60,9 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_MOISTURE_DATA, default="average"): cv.enum(
             MOISTURE_DATAs, upper=True, space="_"
             ),
+            cv.Optional(CONF_REF_DRY, default=40): cv.uint16_t,
+            cv.Optional(CONF_REF_WET, default=8000): cv.uint16_t,
+            cv.Optional(CONF_FACTORY_RESET, default=False): cv.boolean,
         }
     )
     .extend(cv.polling_component_schema("20s"))
@@ -78,5 +84,7 @@ async def to_code(config):
         cg.add(var.set_moisture_sensor(sens))
 
     cg.add(var.set_Energy_Mode(config[CONF_ENERGY_MODE]))
-
     cg.add(var.set_Moisture_Data(config[CONF_MOISTURE_DATA]))
+    cg.add(var.set_ref_dry(config[CONF_REF_DRY]))
+    cg.add(var.set_ref_wet(config[CONF_REF_WET]))
+    cg.add(var.set_factory_reset(config[CONF_FACTORY_RESET]))
