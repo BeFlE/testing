@@ -3,7 +3,7 @@
 #include "esphome/core/helpers.h"
 #include "esphome/core/log.h"
 
-// #include "esphome/core/application.h" // Für App.scheduler
+#include "esphome/core/application.h" // Für App.scheduler
 
 namespace esphome {
 namespace somose {
@@ -74,9 +74,9 @@ void SOMOSE::update() {
     //     break;
     // }
 
-    // App.scheduler.set_timeout("somose_measurement_done", 300, [this]() {
-    //   this->handle_measurement_result_();
-  // }
+    App.scheduler.set_timeout("somose_measurement_done", 300, [this]()) {
+      this->handle_measurement_result_();
+  }
     this->status_clear_warning();
     return;
   }
