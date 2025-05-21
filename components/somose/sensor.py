@@ -198,6 +198,6 @@ async def to_code(config):
 
 #     cg.add(var.set_Energy_Mode(config[CONF_ENERGY_MODE]))
 #     cg.add(var.set_Moisture_Data(config[CONF_MOISTURE_DATA]))
-#     cg.add(var.set_ref_dry(config[CONF_REF_DRY]))
-    cg.add(var.set_ref_wet(config[CONF_REF_WET]))
-    cg.add(var.set_factory_reset(config[CONF_FACTORY_RESET]))
+#      cg.add(var.set_ref_dry(config[CONF_REF_DRY]))
+#     cg.add(var.set_ref_wet(config[CONF_REF_WET]))
+#     cg.add(var.set_factory_reset(config[CONF_FACTORY_RESET]))
