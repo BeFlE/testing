@@ -3,6 +3,8 @@
 #include "esphome/core/helpers.h"
 #include "esphome/core/log.h"
 
+#include "esphome/core/application.h" // Für App.scheduler
+
 namespace esphome {
 namespace somose {
 
@@ -12,15 +14,51 @@ static const char *const TAG = "somose";
 
 void SOMOSE::setup() {
   ESP_LOGCONFIG(TAG, "Setting up SOMOSE...");
-  if(this->EnergyMode_ != (EnergyMode_t)get_low_power_mode_())
-  {
-    ESP_LOGD(TAG, "wrong powerMode");
-    set_low_power_mode((bool)this->EnergyMode_);
+
+  uint8_t addBuff = this->get_i2c_address();
+  ESP_LOGD(TAG, "SoMoSe - Addr = 0x%02X", addBuff);
+  if(addBuff != 0x55){
+    if(get_hw_version_() == 0.0f){
+      ESP_LOGW(TAG, "SoMoSe on Addr: 0x%02X not found, trying default Address 0x55", addBuff);
+      this->set_i2c_address(0x55);
+      if(get_hw_version_() == 0.0f){
+        ESP_LOGE(TAG, "SoMoSe on Addr: 0x%02X and 0x55 (default) not found, check connection", addBuff);
+      }
+      else{
+        set_new_i2c_address(0x55, addBuff);
+        ESP_LOGI(TAG, "SoMoSe on Addr: 0x%02X succesfull connected");
+        this->set_i2c_address(addBuff);
+        delay(25);
+      }
+    }
   }
-  ESP_LOGD(TAG, "setup end");
+
+  if(this->factory_reset_ && !factory_reset_done_){
+    if(factory_reset()){
+      factory_reset_done_ = true;
+      ESP_LOGI(TAG, "SoMoSe factory reset done");
+    }
+    else{
+      ESP_LOGE(TAG, "SoMoSe factory reset failed");
+      delay(1000);
+    }
+    return;
+  }
+
+  if(get_reference_dry_value_() != this->ref_dry_)
+    set_reference_dry(this->ref_dry_);
+  if(get_reference_wet_value_() != this->ref_wet_)
+    set_reference_wet(this->ref_wet_);
+
+  if(get_hw_version_() < 3.0)
+    this-> EnergyMode_ = continous;
+  if(this->EnergyMode_ != (EnergyMode_t)get_low_power_mode_())
+    set_low_power_mode((bool)this->EnergyMode_);
 }
 
 void SOMOSE::update() {
+  if(this->factory_reset_)
+    return;
   ESP_LOGD(TAG, "SOMOSE::update");
   float moisture;
   float temperature = get_temperature_value_signed_() * 1.0f;
@@ -29,28 +67,21 @@ void SOMOSE::update() {
   {
     uint8_t cntr = 0;
     start_measurement(100);
-    delay(250);
-    while (is_measurement_finished_() != 1)
-    {
-      delay(10);
-      if(cntr++ >= 10)
-        break;
-    }
+    // delay(250);
+    // while (is_measurement_finished_() != 1)
+    // {
+    //   delay(10);
+    //   if(cntr++ >= 10)
+    //     break;
+    // }
+
+    App.scheduler.set_timeout("somose_measurement_done", 300, [this]() {
+      this->handle_measurement_result_();
+    });
+    return;
   }
 
-  if(this->Moisture_Data_ == average)
-    moisture = static_cast<float>(get_averaged_sensor_value_());
-  else if(this->Moisture_Data_ == last)
-    moisture = static_cast<float>(get_sensor_value());
-  else if(this->Moisture_Data_ == raw)
-    moisture = static_cast<float>(get_raw_sensor_value());
-
-  if (this->temperature_sensor_ != nullptr) {
-    this->temperature_sensor_->publish_state(temperature);
-  }
-  if (this->moisture_sensor_ != nullptr) {
-    this->moisture_sensor_->publish_state(moisture);
-  }
+  publishValues();
 
   this->status_clear_warning();
 }
@@ -67,6 +98,38 @@ void SOMOSE::dump_config() {
 
 float SOMOSE::get_setup_priority() const {
   return setup_priority::DATA;
+}
+
+
+void SOMOSE::handle_measurement_result_() {
+  if (is_measurement_finished_() == 1) {
+    ESP_LOGD(TAG, "Messung abgeschlossen (via Scheduler Callback)!");
+    publishValues();
+  } else {
+    // Dies sollte idealerweise nicht passieren, wenn die Verzögerung korrekt ist.
+    // Falls doch, kannst du hier ein Error-Log ausgeben und versuchen, es erneut zu prüfen
+    // oder eine Fehlermeldung veröffentlichen.
+    ESP_LOGW(TAG, "Messung war nach der erwarteten Zeit noch nicht fertig.");
+    // // Optional: Scheduler-Timeout erneut setzen, aber mit Vorsicht, um keine Endlosschleife zu erzeugen
+    // App.scheduler.set_timeout("somose_measurement_done", 100, [this]() {
+    //     this->handle_measurement_result_(); // Nochmal versuchen
+    });
+  }
+}
+void SOMOSE::publishValues(){
+  if(this->Moisture_Data_ == average)
+    moisture = static_cast<float>(get_averaged_sensor_value_());
+  else if(this->Moisture_Data_ == last)
+    moisture = static_cast<float>(get_sensor_value());
+  else if(this->Moisture_Data_ == raw)
+    moisture = static_cast<float>(get_raw_sensor_value());
+
+  if (this->temperature_sensor_ != nullptr) {
+    this->temperature_sensor_->publish_state(temperature);
+  }
+  if (this->moisture_sensor_ != nullptr) {
+    this->moisture_sensor_->publish_state(moisture);
+  }
 }
 
 void SOMOSE::set_new_i2c_address(uint8_t old_addr, uint8_t new_addr) {
@@ -341,6 +404,20 @@ bool SOMOSE::set_low_power_mode(bool turn_on) {
     return false;
   }
   delay(100);
+  return true;
+}
+
+bool SOMOSE::factory_reset() {
+  ESP_LOGD(TAG, "Initiating factory reset...");
+  uint8_t command = 'f';
+  ESP_LOGD(TAG, "Sending factory reset command: %c", command); 
+  if (this->write(&command, 1) != i2c::ERROR_OK) {
+    ESP_LOGE(TAG, "Failed to initiate factory reset!");
+    this->status_set_warning();
+    return false;
+  }
+  delay(100); // Eine kurze Verzögerung nach dem Senden des Befehls
+  ESP_LOGD(TAG, "Factory reset command sent successfully.");
   return true;
 }
 
