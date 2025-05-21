@@ -55,7 +55,7 @@ def validate_moisture_unit_conditional(config):
             moisture_sensor_config['unit_of_measurement'] = UNIT_PERCENT
     return config
 
-CONFIG_SCHEMA = (
+CONFIG_SCHEMA = cv.All(
     cv.Schema(
         {
             cv.GenerateID(): cv.declare_id(SOMOSE),
@@ -66,7 +66,7 @@ CONFIG_SCHEMA = (
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
             cv.Optional(CONF_MOISTURE): sensor.sensor_schema(
-                unit_of_measurement=UNIT_PERCENT, # Standardwert, wird von der Validierungsfunktion überschrieben, falls RAW
+                unit_of_measurement=UNIT_PERCENT,  # Standardwert, wird evtl. überschrieben
                 accuracy_decimals=0,
                 icon=ICON_WATER_PERCENT,
                 device_class=DEVICE_CLASS_MOISTURE,
@@ -84,8 +84,8 @@ CONFIG_SCHEMA = (
         }
     )
     .extend(cv.polling_component_schema("20s"))
-    .extend(i2c.i2c_device_schema(default_address=0x55))
-    .add_extra_validator(validate_moisture_unit_conditional) # Die neue Validierungsfunktion hier hinzufügen
+    .extend(i2c.i2c_device_schema(default_address=0x55)),
+    validate_moisture_unit_conditional  # Hier statt .add_extra_validator()
 )
 
 
