@@ -114,7 +114,7 @@ void SOMOSE::handle_measurement_result_() {
     // // Optional: Scheduler-Timeout erneut setzen, aber mit Vorsicht, um keine Endlosschleife zu erzeugen
     // App.scheduler.set_timeout("somose_measurement_done", 100, [this]() {
     //     this->handle_measurement_result_(); // Nochmal versuchen
-    });
+    };
   }
 }
 void SOMOSE::publishValues(){
