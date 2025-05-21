@@ -66,14 +66,6 @@ void SOMOSE::update() {
   {
     uint8_t cntr = 0;
     start_measurement(100);
-    // delay(250);
-    // while (is_measurement_finished_() != 1)
-    // {
-    //   delay(10);
-    //   if(cntr++ >= 10)
-    //     break;
-    // }
-
     App.scheduler.set_timeout(this, "somose_measurement_done", 300, [this]() {
       this->handle_measurement_result_();
     });
@@ -377,7 +369,7 @@ bool SOMOSE::get_low_power_mode_() {
     ESP_LOGE(TAG, "Failed to write command for low power mode status!");
     return false;
   }
-  delay(10);
+  delay(1);
   if (this->read(&status, 1) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Failed to read low power mode status!");
     return false;
@@ -405,7 +397,7 @@ bool SOMOSE::set_low_power_mode(bool turn_on) {
     this->status_set_warning();
     return false;
   }
-  delay(100);
+  delay(25);
   return true;
 }
 
@@ -446,7 +438,7 @@ bool SOMOSE::is_measurement_finished_() {
     ESP_LOGE(TAG, "Failed to write command for measurement finished status!");
     return false;
   }
-  delay(10);
+  delay(1);
   if (this->read(&status, 1) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Failed to read measurement finished status!");
     return false;
