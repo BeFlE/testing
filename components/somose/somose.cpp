@@ -77,7 +77,7 @@ void SOMOSE::update() {
 
     // App.scheduler.set_timeout("somose_measurement_done", 300, [this]() {
     //   this->handle_measurement_result_();
-    }
+  // }
     this->status_clear_warning();
     return;
   }
