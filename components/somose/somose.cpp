@@ -3,7 +3,7 @@
 #include "esphome/core/helpers.h"
 #include "esphome/core/log.h"
 
-#include "esphome/core/application.h" // Für App.scheduler
+// #include "esphome/core/application.h" // Für App.scheduler
 
 namespace esphome {
 namespace somose {
