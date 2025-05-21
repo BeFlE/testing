@@ -405,7 +405,7 @@ bool SOMOSE::set_low_power_mode(bool turn_on) {
 
 bool SOMOSE::factory_reset() {
   ESP_LOGD(TAG, "Initiating factory reset...");
-  uint8_t command = 'f';
+  uint8_t command = 'F';
   ESP_LOGD(TAG, "Sending factory reset command: %c", command); 
   if (this->write(&command, 1) != i2c::ERROR_OK) {
     ESP_LOGE(TAG, "Failed to initiate factory reset!");
