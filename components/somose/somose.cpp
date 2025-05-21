@@ -60,8 +60,7 @@ void SOMOSE::update() {
   if(this->factory_reset_)
     return;
   ESP_LOGD(TAG, "SOMOSE::update");
-  float moisture;
-  float temperature = get_temperature_value_signed_() * 1.0f;
+  
 
   if(this->EnergyMode_ == energy_saving)
   {
@@ -118,6 +117,8 @@ void SOMOSE::handle_measurement_result_() {
   }
 }
 void SOMOSE::publishValues(){
+  float moisture;
+  float temperature = get_temperature_value_signed_() * 1.0f;
   if(this->Moisture_Data_ == average)
     moisture = static_cast<float>(get_averaged_sensor_value_());
   else if(this->Moisture_Data_ == last)
