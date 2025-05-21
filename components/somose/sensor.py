@@ -85,7 +85,7 @@ CONFIG_SCHEMA = (
     )
     .extend(cv.polling_component_schema("20s"))
     .extend(i2c.i2c_device_schema(default_address=0x55))
-    .add_extra_validator(validate_moisture_unit_conditional) # Die neue Validierungsfunktion hier hinzufügen
+    # .add_extra_validator(validate_moisture_unit_conditional) # Die neue Validierungsfunktion hier hinzufügen
 )
 
 
